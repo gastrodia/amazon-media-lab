@@ -21,6 +21,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { MediaPreview } from "@/components/media-preview";
 import { MARKETPLACES } from "@/lib/amazon/url";
 import type { CollectionResult, MediaAsset } from "@/lib/amazon/types";
 import { assetFilename, downloadAsset, saveBlob } from "@/lib/media";
@@ -499,93 +508,111 @@ function AssetCard({
   onToggle: () => void;
   onDownload: () => void;
 }) {
+  const [previewOpen, setPreviewOpen] = useState(false);
+
   return (
-    <Card
-      className={`gap-0 overflow-hidden py-0 shadow-none transition-colors ${checked ? "border-foreground" : ""}`}
-    >
-      <div className="relative aspect-square overflow-hidden bg-muted/30">
-        <button
-          type="button"
-          aria-label={`选择 ${asset.id}`}
-          onClick={onToggle}
-          disabled={disabled}
-          className="h-full w-full p-5 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
-        >
-          {asset.thumbnail ? (
-            <img
-              src={asset.thumbnail}
-              alt={asset.title}
-              loading="lazy"
-              referrerPolicy="no-referrer"
-              className="h-full w-full object-contain transition-transform duration-200 hover:scale-105"
+    <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+      <Card
+        className={`gap-0 overflow-hidden py-0 shadow-none transition-colors ${checked ? "border-foreground" : ""}`}
+      >
+        <div className="relative aspect-square overflow-hidden bg-muted/30">
+          <DialogTrigger asChild>
+            <button
+              type="button"
+              aria-label={`预览 ${asset.title}`}
+              className="h-full w-full p-5 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+            >
+              {asset.thumbnail ? (
+                <img
+                  src={asset.thumbnail}
+                  alt={asset.title}
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                  className="h-full w-full object-contain transition-transform duration-200 hover:scale-105"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  <FileVideo className="size-10 text-muted-foreground" />
+                </div>
+              )}
+            </button>
+          </DialogTrigger>
+          <div className="absolute top-3 left-3">
+            <Checkbox
+              aria-label={`勾选 ${asset.id}`}
+              checked={checked}
+              onCheckedChange={onToggle}
+              disabled={disabled}
+              className="bg-background"
             />
-          ) : (
-            <div className="flex h-full items-center justify-center">
-              <FileVideo className="size-10 text-muted-foreground" />
-            </div>
-          )}
-        </button>
-        <div className="absolute top-3 left-3">
-          <Checkbox
-            aria-label={`勾选 ${asset.id}`}
-            checked={checked}
-            onCheckedChange={onToggle}
-            disabled={disabled}
-            className="bg-background"
-          />
-        </div>
-        <Badge
-          variant="secondary"
-          className="pointer-events-none absolute top-3 right-3 border bg-background/90 text-[10px] font-normal"
-        >
-          {asset.format === "hls"
-            ? "HLS → MP4"
-            : asset.format === "mp4"
-              ? "MP4"
-              : groupLabel[asset.group]}
-        </Badge>
-        {asset.kind === "video" && (
-          <span className="pointer-events-none absolute right-3 bottom-3 flex items-center gap-1 rounded bg-foreground/80 px-2 py-1 text-[10px] text-background">
-            <Play className="size-2.5 fill-current" />
-            {asset.duration
-              ? `${Math.floor(asset.duration / 60)}:${String(Math.round(asset.duration % 60)).padStart(2, "0")}`
-              : "视频"}
-          </span>
-        )}
-      </div>
-      <CardContent className="border-t p-3.5">
-        <div className="mb-1.5 flex items-center justify-between gap-2">
-          <span className="truncate text-xs font-medium" title={asset.title}>
-            {asset.title}
-          </span>
-          <span className="shrink-0 font-mono text-[10px] text-muted-foreground">
-            {asset.width
-              ? `${asset.width}px`
-              : asset.sizeHint
-                ? `${asset.sizeHint}px 规格`
-                : asset.kind === "image"
-                  ? "原始链接"
-                  : "视频源"}
-          </span>
-        </div>
-        <p
-          className="truncate text-[10px] text-muted-foreground"
-          title={asset.variant}
-        >
-          {asset.variant || "当前商品"}
-        </p>
-        <div className="mt-3 flex justify-end">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={`下载 ${asset.id}`}
-            disabled={disabled}
-            onClick={onDownload}
+          </div>
+          <Badge
+            variant="secondary"
+            className="pointer-events-none absolute top-3 right-3 border bg-background/90 text-[10px] font-normal"
           >
-            <ArrowDownToLine className="size-3.5" />
-          </Button>
+            {asset.format === "hls"
+              ? "HLS → MP4"
+              : asset.format === "mp4"
+                ? "MP4"
+                : groupLabel[asset.group]}
+          </Badge>
+          {asset.kind === "video" && (
+            <span className="pointer-events-none absolute right-3 bottom-3 flex items-center gap-1 rounded bg-foreground/80 px-2 py-1 text-[10px] text-background">
+              <Play className="size-2.5 fill-current" />
+              {asset.duration
+                ? `${Math.floor(asset.duration / 60)}:${String(Math.round(asset.duration % 60)).padStart(2, "0")}`
+                : "视频"}
+            </span>
+          )}
         </div>
-      </CardContent>
-    </Card>
+        <CardContent className="border-t p-3.5">
+          <div className="mb-1.5 flex items-center justify-between gap-2">
+            <span className="truncate text-xs font-medium" title={asset.title}>
+              {asset.title}
+            </span>
+            <span className="shrink-0 font-mono text-[10px] text-muted-foreground">
+              {asset.width
+                ? `${asset.width}px`
+                : asset.sizeHint
+                  ? `${asset.sizeHint}px 规格`
+                  : asset.kind === "image"
+                    ? "原始链接"
+                    : "视频源"}
+            </span>
+          </div>
+          <p
+            className="truncate text-[10px] text-muted-foreground"
+            title={asset.variant}
+          >
+            {asset.variant || "当前商品"}
+          </p>
+          <div className="mt-3 flex justify-end">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={`下载 ${asset.id}`}
+              disabled={disabled}
+              onClick={onDownload}
+            >
+              <ArrowDownToLine className="size-3.5" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+      {previewOpen && (
+        <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-4xl">
+          <DialogHeader className="min-w-0 pr-6 text-left">
+            <DialogTitle>
+              {asset.kind === "image" ? "图片预览" : "视频预览"}
+            </DialogTitle>
+            <DialogDescription className="break-words">
+              {asset.title}
+              {asset.variant && ` · ${asset.variant}`}
+            </DialogDescription>
+          </DialogHeader>
+          <MediaPreview asset={asset} />
+        </DialogContent>
+      )}
+    </Dialog>
   );
 }
