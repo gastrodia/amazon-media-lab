@@ -53,7 +53,7 @@ export function MediaPreview({ asset }: { asset: MediaAsset }) {
 
   if (message)
     return (
-      <Alert variant="destructive">
+      <Alert variant="destructive" className="mx-14 w-auto">
         <AlertDescription>{message}</AlertDescription>
       </Alert>
     );
@@ -61,7 +61,7 @@ export function MediaPreview({ asset }: { asset: MediaAsset }) {
   if (!source)
     return (
       <div
-        className="flex min-h-48 flex-col justify-center gap-4 px-6"
+        className="flex w-full flex-col justify-center gap-4 px-14"
         role="status"
       >
         <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
@@ -86,7 +86,7 @@ export function MediaPreview({ asset }: { asset: MediaAsset }) {
       src={source}
       alt={asset.title}
       referrerPolicy="no-referrer"
-      className="mx-auto max-h-[65dvh] max-w-full object-contain"
+      className="size-full object-contain"
       onError={() => setError("图片加载失败，请稍后重新打开预览。")}
     />
   );
@@ -124,7 +124,7 @@ function PreviewVideo({
       autoPlay
       playsInline
       preload="metadata"
-      className="max-h-[65dvh] w-full rounded-md bg-black"
+      className="max-h-full max-w-full rounded-md bg-black object-contain"
       onError={onError}
     />
   );

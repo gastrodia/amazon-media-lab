@@ -107,7 +107,7 @@ export async function collectProduct(
       result.status = pageClass;
       result.warnings.push(
         pageClass === "blocked"
-          ? "亚马逊返回了访问限制或验证页面，本次未得到可解析的商品内容。"
+          ? "亚马逊限制了本次访问或返回了验证页面，暂时无法获取商品内容。请稍等片刻，再点击「提取素材」重试。"
           : "商品页面不存在或当前站点不可访问。",
       );
     } else if (fetched.status >= 400) {
